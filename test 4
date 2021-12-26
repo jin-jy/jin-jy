@@ -1,0 +1,36 @@
+// Run after connection to the remote host
+
+
+
+  if(mbGetReg(5,'F32BADC') === 0){ // Get register 5 with type F32
+  let value = mbResult(); // mbResult() returns the value of the last modbus operation
+  } else {
+    print("Error reading modbus register");
+  }
+
+
+
+   This example demonstrates reading the registers on a remote modbus TCP device
+   In our case we set register 3 of type F32 (32 bit IEE Floating point number) with byte order BADC to the value of 2.342
+
+   Valid modbus register type examples include
+
+   	U16 Unsigned 16bit register
+   	S16 Signed 16bit register
+   	U32 Unsigned 32bit register
+   	S32 Signed 32bit register
+   	F32 32Bit IEE Floating Point register
+    F16 16Bit Half Float register
+    COIL coil register
+    DISC Discrete Input Register
+
+   Host byte order is set by the letters follwing the data type i.e. S16AB or S32ABCD or F32BACD
+   for COIL and DISC type reads and writes use the number of inputs (bits) after the command
+   e.g. DISC16 to read 16 discrete inputs. the getBit and setBit functions can then be used to query
+   individual bits (inputs, coils etc) in the mbResult
+   e.g. getBit(mbResult(),4)); to get bit 4 in the result.
+
+   using DISC1 or COIL1 will return a value of true or false depending on bit 0 of the DISCRETE or COIL input being read
+
+   After executing mbConnect, mbSetReg and mbGetReg return the status of the command, a value of 0
+   indicates a successful transaction, any other value indicates the error code.
