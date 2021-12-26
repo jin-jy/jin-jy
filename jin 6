@@ -1,0 +1,42 @@
+#! /bin/bash -e
+
+파일=/flexscada/devices.json
+만약 [ !  -f  " $파일 " ] ;  그 다음에
+    에코  " {
+    \" 계정 \" : {
+        \" $FS_ADMIN_KEY \" : {
+            \" 관리자 \" : 참
+        }
+    },
+    \" 장치 \" : {
+    },
+    \" 펌웨어 \" : {
+    },
+    \" 키 \" : {
+    }
+} "  > /flexscada/devices.json
+
+파이
+
+
+
+파일=/flexscada/flexscada.json
+만약 [ !  -f  " $파일 " ] ;  그 다음에
+    에코  " {
+\" 포트 \" : \" 7001 \" ,
+\" 호스트 \" : \" 0.0.0.0 \" ,
+\" www_directory \" : \" www \" ,
+\" log_directory \" : \" 로그 \" ,
+\" device_database \" : \" devices.json \" ,
+\" 리스너 _ 포트 \" : 8001,
+\" influxdb \" : \" $FS_INFLUXDB_URL \" ,
+\" influx_credentials \" : \" &u=root&p= $FS_ADMIN_KEY \" ,
+\" grafana_url \" : \" $FS_GRAFANA_URL \" ,
+\" grafana_admin_user \" : \" 관리자 \" ,
+\" grafana_admin_password \" : \" $FS_ADMIN_KEY \"
+} "  > /flexscada/flexscada.json
+
+파이
+
+
+flexscada_d flexscada.json
