@@ -1,0 +1,91 @@
+#!/bin/bash -e 
+mkdir -p ~/flexscada 
+cd ~/flexscada
+
+sudo 도커 네트워크 생성 --subnet=172.18.0.0/16 flexscada_network || 진실
+
+influxdb_ip="172.18.0.20" 
+grafana_ip="172.18.0.21" 
+flexscada_ip="172.18.0.22"
+
+
+ID=$(id -u) # 사용자 ID를 ID 변수에 저장합니다.
+
+mkdir -p ~/flexscada/influxdb
+
+파일=~/flexscada/key.txt 
+if [ ! -f "$파일" ]; then 
+    echo "$FILE이 존재하지 않습니다. influxdb 및 flexscada 데몬에 대한 새 임의 키 생성" 
+    head /dev/urandom | tr -dc A-Za-z0-9 | 머리 -c20 > key.txt 
+fi
+
+PASSWORD=`고양이 ~/flexscada/key.txt` 
+GRAFANA_ROOT="http://localhost:3000"
+
+
+# 아래 라인 #PASSWORD= myrandompassword로 임의의 비밀번호를 무시합니다.
+
+echo "Influxdb Docker 이미지 배포 중.."
+
+sudo 도커 중지 fs_influxdb || 진정한 
+sudo 도커 rm fs_influxdb || true 
+sudo docker run --net flexscada_network --ip $influxdb_ip --restart always -p 8086:8086 -d -p 8083:8083 \ 
+    --name=fs_influxdb --log-opt max-size=10m --log-opt 최대 파일=5 \ 
+      -e INFLUXDB_HTTP_AUTH_ENABLED -e INFLUXDB_ADMIN_ENABLED=true \ 
+      -e INFLUXDB_ADMIN_USER=admin -e INFLUXDB_ADMIN_PASSWORD=$PASSWORD \ 
+      -v ~/flexscada/influxdb:/var/lib/influxdbst \ 
+      influxdb:
+
+
+echo "Grafana 플러그인 배포 중..." 
+mkdir -p ~/flexscada/grafana mkdir -p ~/flexscada/grafana/plugins mkdir -p ~/flexscada/grafana/logs mkdir -p ~/flexscada/grafana/conf      
+
+
+
+
+
+cd ~/flexscada/grafana/plugins 
+git clone https://github.com/comcomservices/FlexSCADA-Grafana-Map-Panel.git || 진정한 
+자식 복제 https://github.com/ComComServicesLtd/flexscada-grafana-app.git || 진실
+
+
+current_host="127.0.0.1" 
+sed -i -e 's/'"$current_host"'/'"$flexscada_ip"'/g' ~/flexscada/grafana/plugins/flexscada-grafana-app/dist/plugin.json
+
+
+echo "Grafana Docker 이미지 배포 중.."
+
+sudo 도커 중지 fs_grafana || 진정한 
+sudo 도커 rm fs_grafana || 진실
+
+
+sudo docker run -d --net flexscada_network --ip $grafana_ip -- 항상 다시 시작 --user $ID -p 3000:3000 \ 
+    --name=fs_grafana --log-opt 최대 크기=10m --log-opt 최대 -file=5 \ 
+  -e GF_SERVER_ROOT_URL=$GRAFANA_ROOT \ 
+  -e GF_SECURITY_ADMIN_PASSWORD=$PASSWORD \ 
+  -e GF_PATHS_LOGS=/var/lib/grafana/logs \ 
+  -e GF_USERS_AUTO_ASSIGN_ORG=false \ 
+  -e "GF_INSTALL_f,grafana" -piechart-panel" \ 
+  -v ~/flexscada/grafana:/var/lib/grafana \ 
+    grafana/grafana:최신
+
+
+echo "FlexSCADA Docker 이미지 배포.." 
+mkdir -p ~/flexscada/flexscada mkdir -p ~/flexscada/flexscada/logs    
+
+
+
+    
+sudo 도커 중지 fs_flexscada || 진정한 
+sudo 도커 rm fs_flexscada || 진실
+
+sudo docker run -d --net flexscada_network --ip $flexscada_ip -p 7001:7001 --name fs_flexscada --user $ID --항상 다시 시작 --log-opt 최대 크기=10m --log-opt 최대 파일 =5 \ 
+-v ~/flexscada/flexscada:/flexscada \ 
+-e FS_ADMIN_KEY=$PASSWORD \ 
+-e FS_GRAFANA_URL=http://$grafana_ip:3000 \ 
+-e FS_INFLUXDB_URL=http://$influxdb_ip:8086 \ 
+-i - t comcomservices/flexscada:최신
+
+ 
+ 
+echo "설정이 완료되었습니다! 이제 $GRAFANA_ROOT에서 사용자 이름 admin과 암호 $PASSWORD로 grafana 계정에 로그인할 수 있습니다."
