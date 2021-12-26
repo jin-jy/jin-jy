@@ -1,0 +1,11 @@
+//Connect to the Tristar
+   let err = mbConnect('192.168.1.2', 502, 1);
+     if (err === 0) {
+        // Perform modbus operations
+         mbDisconnect(); // Only disconnect after a sucessful connect
+     } else {
+       print("Failed to connect to connect to TS device..",err);
+       return false;
+     }
+mbGetReg(REGISTER, FORMAT) → {Number}
+Read a Modbus register on a remote device
