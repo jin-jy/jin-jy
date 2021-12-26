@@ -1,0 +1,13 @@
+let request = {
+ msg: "hello from client",
+ epoch: datetime().epoch
+};
+
+let res = http.req(url,JSON.stringify(request),1000,false); // (1000 = timeoutMS, fase = AES encryption disabled)
+
+if(res.err === 0 && res.code === 200) // Valid response, process it!
+{
+
+let payload = JSON.parse(res.payload); // Parse text payload into a JSON object
+
+}
