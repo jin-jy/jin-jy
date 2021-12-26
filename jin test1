@@ -1,0 +1,18 @@
+// Example code
+
+/*
+This example demonstrates how to access the analog input values from a logic script.
+To check the operational status of the analog conversion check the reading of the __status().adc_sps variable.
+*/
+
+// binding the loop to the run() function allows the Flexs Q5 to stop the script during configuration updates,prevents unexpected behaviour
+while(run()){
+
+  let input1 = inputs(1);
+
+  print(JSON.stringify(input1)); // Print all the possible options for this object
+  //{"ripple":0.001878,"state":false,"max":0.001997,"min":-0.000126,"inst":0.001106,"avg":0.000976}
+  print('Input 1 Avg: ',input1.avg);
+
+  waitMS(1000); // wait 1 second (1000ms)
+}
