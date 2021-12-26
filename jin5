@@ -1,0 +1,30 @@
+FROM 알파인 : 3.5
+유지 보수 FlexSCADA 시스템 <support@flexscada.com>
+
+RUN apk --update add --no-cache bash libstdc++ libgcc libcurl boost-system \
+  && rm -rf /var/cache/apk/*
+
+# 실행 sed -ie 's/#포트 22/포트 22/g' /etc/ssh/sshd_config
+# 실행 sed -ri 's/#HostKey \/etc\/ssh\/ssh_host_key/HostKey \/etc\/ssh\/ssh_host_key/g' /etc/ssh/sshd_config
+# 실행 sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_rsa_key/HostKey \/etc\/ssh\/ssh_host_rsa_key/g' /etc/ssh/sshd_config
+# 실행 sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_dsa_key/HostKey \/etc\/ssh\/ssh_host_dsa_key/g' /etc/ssh/sshd_config
+# 실행 sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_ecdsa_key/HostKey \/etc\/ssh\/ssh_host_ecdsa_key/g' /etc/ssh/sshd_config
+# 실행 sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_ed25519_key/HostKey \/etc\/ssh\/ssh_host_ed25519_key/g' /etc/ssh/sshd_config
+# 실행 /usr/bin/ssh-keygen -A
+# 실행 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_key
+
+
+
+
+# 노출 22
+# CMD ["/usr/sbin/sshd","-D"]
+
+
+복사 ./run.sh /run.sh
+복사 ./flexscada_d /usr/bin/flexscada_d
+노출 7001
+
+WORKDIR /flexscada
+진입점 [ "/run.sh" ]
+
+# docker build -t flexscada로 빌드
