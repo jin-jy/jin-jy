@@ -1,0 +1,446 @@
+//---------------------------------
+
+#include<stdio.h>
+
+#include <Wire.h> // https://www.arduino.cc/en/Reference/Wire
+
+#include <ADS1115.h> // https://github.com/addicore/ADS1115
+
+//#include <Adafruit_ADS1015.h> // 12 비트버전 https://github.com/sparkfun/SparkFun_ADS1015_Arduino_Library
+
+//#include <Adafruit_ADS1X15.h> // 16 비트버전 https://github.com/adafruit/Adafruit_ADS1X15
+
+#include <Adafruit_ADS1015.h>
+
+#include<math.h> // https://www.arduino.cc/en/Math/H
+
+
+
+//Adafruit_ADS1115 ads1115(0x49); // construct an ads1115 at address 0x49
+
+//Adafruit_ADS1115 ads(uint8_t addr); //지정된 주소 (0x48-0x4B)로 ADS1115의 인스턴스를 생성합니다
+
+Adafruit_ADS1015 ads1015;
+
+Adafruit_ADS1115 ads(uint8_t addr);
+
+Adafruit_ADS1115 ads1115(0x48);
+
+//ADS1115 adc;
+
+
+
+int16_t rawADCvalue[8]; // ADS1115로부터 받은 값을 저장하는 곳
+
+
+
+//=======================설정사항 ss1 ==============================
+
+void setup()
+
+{
+
+    //ads1115.begin();
+
+    //void abs1115.begin(void);
+
+    ads1015.begin();
+
+    ads1115.begin();
+
+    //ads1115.begin(uint8_t addr);
+
+    Serial.begin(115200);
+
+    //Serial.println("Hello!");
+
+    //Serial.println("Getting differential reading from AIN0 (P) and AIN1 (N)");
+
+    //Serial.println("ADC Range: +/- 6.144V (1 bit = 3mV)");
+
+    //----------------------------------
+
+}
+
+
+
+//=======================루프함수 ss1 ==============================
+
+void loop(void)
+
+{
+
+    float inst_voltage_A = 0, inst_current_A = 0;
+
+    float inst_voltage_B = 0, inst_current_B = 0;
+
+    float inst_voltage_C = 0, inst_current_C = 0;
+
+    float inst_power_A = 0, inst_power_B = 0, inst_power_C = 0;
+
+
+
+    float squared_voltage_A = 0, squared_voltage_B = 0, squared_voltage_C = 0;
+
+    float squared_current_A = 0, squared_current_B = 0, squared_current_C = 0;
+
+
+
+    float sum_squared_voltage_A = 0, sum_squared_voltage_B = 0, sum_squared_voltage_C = 0;
+
+    float sum_squared_current_A = 0, sum_squared_current_B = 0, sum_squared_current_C = 0;
+
+    float sum_inst_power = 0; int number_of_samples = 0;
+
+
+
+    float mean_square_voltage_A = 0, mean_square_voltage_B = 0, mean_square_voltage_C = 0;
+
+    float mean_square_current_A = 0, mean_square_current_B = 0, mean_square_current_C = 0;
+
+
+
+    float rms_voltage_A = 0, rms_voltage_B = 0, rms_voltage_C = 0;
+
+    float rms_current_A = 0, rms_current_B = 0, rms_current_C = 0;
+
+
+
+    float real_power = 0, PF = 0, reactive_power = 0, phase_deg = 0;
+
+
+
+    float apparent_power = 0; float pi = 3.14;
+
+
+
+    // ------------------ while(1) ss1 --------------------
+
+    while (0x48)
+
+    {
+
+        // rawADCvalue[0];
+
+        Adafruit_ADS1115 ads1115(0x48); // 주소 0x48에 ads1115를 만듭니다.
+
+        ads1115.readADC_Differential_0_1();
+
+        ads1115.readADC_Differential_2_3();
+
+
+
+        rawADCvalue[0] = ads1115.readADC_Differential_0_1();
+
+        rawADCvalue[1] = ads1115.readADC_Differential_2_3();
+
+    }
+
+
+
+    // ------------------ while(2) ss1 --------------------
+
+    while (0x49)
+
+    {
+
+        Adafruit_ADS1115 ads1115(0x49);
+
+        ads1115.readADC_Differential_0_1();
+
+        ads1115.readADC_Differential_2_3();
+
+
+
+        rawADCvalue[2] = ads1115.readADC_Differential_0_1();
+
+        rawADCvalue[3] = ads1115.readADC_Differential_2_3();
+
+
+
+        Serial.print("Differential: ");
+
+        Serial.print(rawADCvalue[0]); Serial.print("(");
+
+        Serial.print(rawADCvalue[0] * 3); Serial.println("mV)");
+
+    }
+
+
+
+    // ------------------ while(3) ss1 --------------------
+
+    while (0x4A)
+
+    {
+
+        Adafruit_ADS1115 ads1115(0x4A);
+
+        ads1115.readADC_Differential_0_1();
+
+        ads1115.readADC_Differential_2_3();
+
+
+
+        rawADCvalue[4] = ads1115.readADC_Differential_0_1();
+
+        rawADCvalue[5] = ads1115.readADC_Differential_2_3();
+
+    }
+
+
+
+    // ------------------ while(4) ss1 --------------------
+
+    while (0x4B)
+
+    {
+
+        Adafruit_ADS1115 ads1115(0x4B);
+
+        ads1115.readADC_Differential_0_1();
+
+        ads1115.readADC_Differential_2_3();
+
+
+
+        rawADCvalue[6] = ads1115.readADC_Differential_0_1();
+
+        rawADCvalue[7] = ads1115.readADC_Differential_2_3();
+
+    }
+
+
+
+    //----------------------------------
+
+    //ads.begin();
+
+    //----------------------------------
+
+
+
+    float Vscalefactor = 0.0849F; // 우리가 사용할 기본 +/- 2.872볼트 범위의 배율입니다.
+
+    float Ascalefactor = 0.1424F; // 우리가 사용할 기본 +/- 4.667볼트 범위의 배율입니다.
+
+
+
+    inst_voltage_A = rawADCvalue[0] * Vscalefactor / 1000.0;
+
+    inst_current_A = rawADCvalue[1] * Ascalefactor / 1000.0;
+
+
+
+    //----------------------------------
+
+
+
+    inst_voltage_B = rawADCvalue[2] * Vscalefactor / 1000.0;
+
+    inst_current_B = rawADCvalue[3] * Ascalefactor / 1000.0;
+
+
+
+    //----------------------------------
+
+
+
+    inst_voltage_C = rawADCvalue[4] * Vscalefactor / 1000.0;
+
+    inst_current_C = rawADCvalue[5] * Ascalefactor / 1000.0;
+
+
+
+    //----------------------------------
+
+
+
+    inst_voltage_A = rawADCvalue[6] * Vscalefactor / 1000.0;
+
+    inst_current_A = rawADCvalue[7] * Ascalefactor / 1000.0;
+
+
+
+
+
+    //-----------------------------------
+
+
+
+    inst_power_A = inst_voltage_A * inst_current_A;
+
+    inst_power_B = inst_voltage_B * inst_current_B;
+
+    inst_power_C = inst_voltage_C * inst_current_C;
+
+
+
+    //---------------------------------
+
+
+
+    squared_voltage_A = inst_voltage_A * inst_voltage_A;
+
+    squared_voltage_B = inst_voltage_B * inst_voltage_B;
+
+    squared_voltage_C = inst_voltage_C * inst_voltage_C;
+
+
+
+    //---------------------------------
+
+
+
+    squared_current_A = inst_current_A * inst_current_A;
+
+    squared_current_B = inst_current_B * inst_current_B;
+
+    squared_current_C = inst_current_C * inst_current_C;
+
+
+
+    //---------------------------------
+
+
+
+    sum_squared_voltage_A += squared_voltage_A;
+
+    sum_squared_voltage_B += squared_voltage_B;
+
+    sum_squared_voltage_C += squared_voltage_C;
+
+
+
+    //---------------------------------
+
+
+
+    sum_squared_current_A += squared_current_A;
+
+    sum_squared_current_B += squared_current_B;
+
+    sum_squared_current_C += squared_current_C;
+
+
+
+    //---------------------------------
+
+
+
+    sum_inst_power += inst_power_A + inst_power_B + inst_power_C;
+
+    number_of_samples = number_of_samples + 1;
+
+
+
+    //---------------------------------
+
+
+
+    mean_square_voltage_A = sum_squared_voltage_A / number_of_samples;
+
+    mean_square_voltage_B = sum_squared_voltage_B / number_of_samples;
+
+    mean_square_voltage_C = sum_squared_voltage_C / number_of_samples;
+
+
+
+    //----------------------------------
+
+
+
+    rms_voltage_A = sqrt(mean_square_voltage_A);
+
+    rms_voltage_B = sqrt(mean_square_voltage_B);
+
+    rms_voltage_C = sqrt(mean_square_voltage_C);
+
+
+
+    //----------------------------------
+
+
+
+    mean_square_current_A = sum_squared_current_A / number_of_samples;
+
+    mean_square_current_B = sum_squared_current_B / number_of_samples;
+
+    mean_square_current_C = sum_squared_current_C / number_of_samples;
+
+
+
+    //----------------------------------
+
+
+
+    rms_current_A = sqrt(mean_square_current_A); //실효전류_A
+
+    rms_current_B = sqrt(mean_square_current_B); //실효전류_B
+
+    rms_current_C = sqrt(mean_square_current_C); //실효전류_C
+
+
+
+    //----------------------------------
+
+
+
+    real_power = sum_inst_power / number_of_samples;
+
+    apparent_power = rms_voltage_A * rms_current_A + rms_voltage_B * rms_current_B + rms_voltage_C * rms_current_C;
+
+    PF = apparent_power / real_power;
+
+    reactive_power = apparent_power / sqrt(1 - PF * PF);
+
+    phase_deg = acos(PF * 180 / pi);
+
+
+
+    //----------------------------------
+
+
+
+    // lcd.begin(16,4); // 열, 행. 16x4 LCD 등에 16열,4행을 사용하십시오.
+
+    // lcd.clear();
+
+    // lcd.setCursor(0,0); //커서를 열 0, 행 0 (첫 번째 행)으로 설정
+
+    // lcd.print("A상Vrms:%0.2f B상Vrms:%0.2f\n" C상Vrms:%0.2f\n", rms_voltage_A, rms_voltage_B, rms_voltage_C);
+
+    // lcd.setCursor(0,1); // 커서를 열 0, 행 1 (두 번째 행)로 설정
+
+    // lcd.print("A상Irms:%0.2f B상Irms:%0.2f\n" C상Irms:%0.2f\n", rms_current_A, rms_current_B, rms_current_C);
+
+    // lcd.setCursor(0,2); // 커서를 열 0, 행 2 (세 번째 행)로 설정
+
+    // lcd.print("피상유효전력:%0.2f 유효전력 :%0.2f\n", apparent_power, real_power);
+
+    // lcd.setCursor(0,3); // 커서를 열 0, 행 3 (네 번째 행)로 설정
+
+    // lcd.print("무효전력:%0.2f 역율 :%0.2f\n" 위상각%0.2f\n:, reactive_power, PF,phase_deg);
+
+
+
+    //-------------------------------------
+
+
+
+    // printf("A상Vrms:%0.2f B상Vrms:%0.2f\n" C상Vrms:%0.2f\n",
+
+    // rms_voltage_A, rms_voltage_B,rms_voltage_C);
+
+    // printf("A상Irms:%0.2f B상Irms:%0.2f\n" C상Irms:%0.2f\n",
+
+    // rms_current_A, rms_current_B,rms_current_C);
+
+    // printf("피상유효전력:%0.2f 유효전력 :%0.2f\n", apparent_power, real_power);
+
+    // printf("무효전력:%0.2f 역율 :%0.2f\n" 위상각%0.2f\n:, reactive_power, PF,phase_deg );
+
+
+
+}
+
