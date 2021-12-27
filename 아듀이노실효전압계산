@@ -1,0 +1,10 @@
+// https://cafe.naver.com/renewableenergy/83177
+for (n=0; n// inst_voltage calculation from raw ADC input goes here.
+
+  squared_voltage = inst_voltage * inst_voltage;
+
+  sum_squared_voltage += squared_voltage;
+}
+
+mean_square_voltage = sum_squared_voltage / number_of_samples;
+root_mean_square_voltage = sqrt(mean_square_voltage);
