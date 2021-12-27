@@ -1,0 +1,91 @@
+#!/bin/bash -e
+mkdir -p ~/flexscada
+cd ~/flexscada
+
+sudo docker network create --subnet=172.18.0.0/16 flexscada_network || true
+
+influxdb_ip="172.18.0.20"
+grafana_ip="172.18.0.21"
+flexscada_ip="172.18.0.22"
+
+
+ID=$(id -u) # saves your user id in the ID variable
+
+mkdir -p ~/flexscada/influxdb
+
+FILE=~/flexscada/key.txt
+if [ ! -f "$FILE" ]; then
+    echo "$FILE does not exist, Creating new random key for influxdb and flexscada daemon"
+    head /dev/urandom | tr -dc A-Za-z0-9 | head -c20 > key.txt
+fi
+
+PASSWORD=`cat ~/flexscada/key.txt`
+GRAFANA_ROOT="http://localhost:3000"
+
+#override random password with below line
+#PASSWORD=myrandompassword
+
+echo "Deploying Influxdb Docker Image.."
+
+sudo docker stop fs_influxdb || true
+sudo docker rm fs_influxdb || true
+sudo docker run --net flexscada_network --ip $influxdb_ip --restart always -p 8086:8086 -d -p 8083:8083 \
+    --name=fs_influxdb --log-opt max-size=10m --log-opt max-file=5 \
+      -e INFLUXDB_HTTP_AUTH_ENABLED -e INFLUXDB_ADMIN_ENABLED=true \
+      -e INFLUXDB_ADMIN_USER=admin -e INFLUXDB_ADMIN_PASSWORD=$PASSWORD \
+      -v ~/flexscada/influxdb:/var/lib/influxdb \
+      influxdb:latest
+
+
+echo "Deploying Grafana Plugins..."
+      
+mkdir -p ~/flexscada/grafana
+mkdir -p ~/flexscada/grafana/plugins
+mkdir -p ~/flexscada/grafana/logs
+mkdir -p ~/flexscada/grafana/conf
+
+cd ~/flexscada/grafana/plugins
+git clone https://github.com/comcomservices/FlexSCADA-Grafana-Map-Panel.git || true
+git clone https://github.com/ComComServicesLtd/flexscada-grafana-app.git || true
+
+
+current_host="127.0.0.1"
+sed -i -e 's/'"$current_host"'/'"$flexscada_ip"'/g' ~/flexscada/grafana/plugins/flexscada-grafana-app/dist/plugin.json 
+
+
+echo "Deploying Grafana Docker Image.."
+
+sudo docker stop fs_grafana || true
+sudo docker rm fs_grafana || true
+
+
+sudo docker run -d --net flexscada_network --ip $grafana_ip --restart always --user $ID -p 3000:3000 \
+    --name=fs_grafana --log-opt max-size=10m --log-opt max-file=5 \
+  -e GF_SERVER_ROOT_URL=$GRAFANA_ROOT \
+  -e GF_SECURITY_ADMIN_PASSWORD=$PASSWORD \
+  -e GF_PATHS_LOGS=/var/lib/grafana/logs \
+  -e GF_USERS_AUTO_ASSIGN_ORG=false \
+  -e "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel" \
+  -v ~/flexscada/grafana:/var/lib/grafana \
+    grafana/grafana:latest
+
+
+echo "Deploying FlexSCADA Docker Image.."
+    
+mkdir -p ~/flexscada/flexscada
+mkdir -p ~/flexscada/flexscada/logs
+
+    
+sudo docker stop fs_flexscada || true
+sudo docker rm fs_flexscada || true
+
+sudo docker run -d --net flexscada_network --ip $flexscada_ip -p 7001:7001 --name fs_flexscada --user $ID --restart always --log-opt max-size=10m --log-opt max-file=5 \
+ -v ~/flexscada/flexscada:/flexscada \
+ -e FS_ADMIN_KEY=$PASSWORD \
+ -e FS_GRAFANA_URL=http://$grafana_ip:3000 \
+ -e FS_INFLUXDB_URL=http://$influxdb_ip:8086 \
+ -i -t comcomservices/flexscada:latest
+
+ 
+ 
+echo "Setup is complete!  You can now login to your grafana account at $GRAFANA_ROOT with the username admin and password $PASSWORD"
