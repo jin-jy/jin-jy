@@ -1,0 +1,10 @@
+//  https://cafe.naver.com/renewableenergy/83177
+for (n=0; n // inst_voltage and inst_current calculation from raw ADC input goes here
+                 // 원시 ADC 입력으로부터의 inst_voltage 및 inst_current 계산은 여기로 이동
+
+  inst_power = inst_voltage * inst_current;
+  
+  sum_inst_power += inst_power;
+}
+ 
+real_power = sum_inst_power / number_of_samples;
