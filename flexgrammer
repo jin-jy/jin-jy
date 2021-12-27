@@ -1,0 +1,309 @@
+/*
+https://flexscada.com/q5script/index.html 
+내장 API: 다양한 기능이 내장되어 있어 아날로그 입력, 릴레이, 전력 메트릭 등을 포함한 다양한 온보드 주변 장치에 액세스할 수 있습니다. 거의 모든 기능에 대한 예제는 Flexs Q5 웹 인터페이스에 포함되어 있습니다
+이 예는 로직 스크립트에서 아날로그 입력 값에 액세스하는 방법을 보여줍니다.
+아날로그 변환의 작동 상태를 확인하려면 __status().adc_sps 변수의 읽기를 확인하십시오.
+*/
+
+// 루프를 run() 함수에 바인딩하면 Flexs Q5가 구성 업데이트 중에 스크립트를 중지하고 예기치 않은 동작을 방지할 수 있습니다.
+
+while(run()){
+
+  let input1 = inputs(1);
+
+  print(JSON.stringify(input1)); // Print all the possible options for this object
+  //{"ripple":0.001878,"state":false,"max":0.001997,"min":-0.000126,"inst":0.001106,"avg":0.000976}
+  print('Input 1 Avg: ',input1.avg);
+
+  waitMS(1000); // wait 1 second (1000ms)
+}
+
+// 루프를 run() 함수에 바인딩하면 Flexs Q5가 중지됩니다.
+// 구성 업데이트 중 스크립트, 예기치 않은 동작 방지
+while(run()){
+
+}
+
+while(true){
+if(!run())
+ {
+   return0;
+  }
+}
+
+// 잘못된 경우 : while(true){}
+
+
+// ---------------http------------------------
+// (static) handle(callback, secure)
+// callback-요청핸들러콜백기능  secure-AES256 종단 간 암호화 활성화
+// 웹(http) 요청 처리기를 설정하면 /app에 대한 요청이 처리기 함수로 전달됩니다.
+
+function handleHttp(req){
+
+   print('URL:',req.url);
+   print('Payload:',req.payload);
+
+   return "Hello from web servr";
+ }
+
+ http.handle(handleHttp,false);
+
+// ----------http-------------------
+// (static) req(url, payload, Timeout, secure) → {Object}
+// url-요청 URL, payload - 페이로드 문자열, 사용되는 경우 요청은 POST 요청이 됩니다.
+// 새 웹(http) 요청 시작
+
+let request = {
+ msg: "hello from client",
+ epoch: datetime().epoch
+};
+
+let res = http.req(url,JSON.stringify(request),1000,false); // (1000 = timeoutMS, fase = AES encryption disabled)
+
+if(res.err === 0 && res.code === 200) // Valid response, process it!
+{
+
+let payload = JSON.parse(res.payload); // Parse text payload into a JSON object
+
+}
+
+// ----------json---------------
+// (static) parse(String) → {Object}
+
+print(JSON.parse("{"uid":897946130,"fw_v":85,"cfg_v":139,"adc_sps":8002}")); 
+// 요청 객체의 문자열 표현 인쇄
+
+// --------json------------
+// 새 웹 요청 시작
+let request = {
+ msg: "hello from client",
+ epoch: datetime().epoch
+};
+print(JSON.stringify(request)); // 요청 객체의 문자열 표현 인쇄
+
+-------math-----------
+// Math Object Properties
+/*
+E Returns Euler's number (approx. 2.718)LN2 Returns the natural logarithm of 2 (approx. 0.693)LN10 Returns the natural logarithm of 10 (approx. 2.302)LOG2E Returns the base-2 logarithm of E (approx. 1.442)LOG10E Returns the base-10 logarithm of E (approx. 0.434)PI Returns PI (approx. 3.14)SQRT1_2 Returns the square root of 1/2 (approx. 0.707)SQRT2 Returns the square root of 2 (approx. 1.414)
+*/
+// Math Object Methods
+/*
+abs(x) Returns the absolute value of x
+acos(x) Returns the arccosine of x, in radians
+acosh(x) Returns the hyperbolic arccosine of x
+asin(x) Returns the arcsine of x, in radians
+asinh(x) Returns the hyperbolic arcsine of x
+atan(x) Returns the arctangent of x as a numeric value between -PI/2 and PI/2 radians
+atan2(y, x) Returns the arctangent of the quotient of its arguments
+atanh(x) Returns the hyperbolic arctangent of x
+cbrt(x) Returns the cubic root of x
+ceil(x) Returns x, rounded upwards to the nearest integer
+cos(x) Returns the cosine of x (x is in radians)
+cosh(x) Returns the hyperbolic cosine of x
+exp(x) Returns the value of Ex
+floor(x) Returns x, rounded downwards to the nearest integer
+log(x) Returns the natural logarithm (base E) of x
+max(x, y, z, ..., n) Returns the number with the highest value
+min(x, y, z, ..., n) Returns the number with the lowest value
+pow(x, y) Returns the value of x to the power of y
+random() Returns a random number between 0 and 1
+round(x) Rounds x to the nearest integer
+sin(x) Returns the sine of x (x is in radians)
+sinh(x) Returns the hyperbolic sine of x
+sqrt(x) Returns the square root of x
+tan(x) Returns the tangent of an angle
+tanh(x) Returns the hyperbolic tangent of a number
+trunc(x) Returns the integer part of a number (x)
+*/
+let value =Math.sin(0.1);
+
+--------math-----------
+// mathod
+// (static) map(value, in_min, in_max, out_min, out_max) → {Object}
+// 새 웹 요청 시작
+let sourceValue =512;
+                     let scaledValue =Math.map(sourceValue,0,1024,0,100);
+                     //scaledValue = 50
+
+//--------upt---------
+// (static) send(url, payload, timeout, secure) → {Number}
+// UDP 데이터그램 전송
+udp.send("http://192.168.5.159:2115","Hello from Q5");
+
+//----- Global ---------
+// Methods
+// __status(status)
+//시스템 상태 가져오기
+let status = __status();
+                    status = // {"uid":897946130,"fw_v":85,"cfg_v":139,"adc_sps":8002}
+// chargecontrollers(Index) → {Object}
+// Morningstar 충전 컨트롤러 상태 및 판독값 가져오기
+let ms0 = chargecontrollers(0); // Get first morningstar charger
+ print('Battery Voltage: ',ms0.batteryVoltage);
+ print(JSON.stringify(ms0));  // Print all possible object values
+
+//datetime() → {Object}
+//날짜 시간 가져오기
+setEnv('sys.utc_offset',-8); // Set UTC offset
+
+ let dateTime = datetime();
+ // dateTime = {"valid":true,"uptime":1437.058175,"epoch":1589247811,"year":2020,"month":5,"monthDay":12,"weekDay":2,"hour":1,"minute":43,"second":31}
+
+//getBit(VALUE, BIT) → {Number}
+//Get a single bit from a interger number
+let value = getFeed(0); // Get the value of feed 0 and place it into a variable named value
+
+//getUptime() → {Number}
+//Get device uptime in seconds
+let uptime = getUptime(); // Uptime = 34322.3231
+
+//inputs(Channel) → {Object}
+//Get analog input value
+let input1 = inputs(1);
+ // input1 = {"ripple":0.001878,"state":false,"max":0.001997,"min":-0.000126,"inst":0.001106,"avg":0.000976}
+
+//mbConnect(host, PORT, ID) → {Number}
+//Connect to modbus tcp device
+//Connect to the Tristar
+   let err = mbConnect('192.168.1.2', 502, 1);
+     if (err === 0) {
+        // Perform modbus operations
+         mbDisconnect(); // Only disconnect after a sucessful connect
+     } else {
+       print("Failed to connect to connect to TS device..",err);
+       return false;
+     }
+
+//mbGetReg(REGISTER, FORMAT) → {Number}
+//Read a Modbus register on a remote device
+// Run after connection to the remote host
+
+
+
+  if(mbGetReg(5,'F32BADC') === 0){ // Get register 5 with type F32
+  let value = mbResult(); // mbResult() returns the value of the last modbus operation
+  } else {
+    print("Error reading modbus register");
+  }
+
+
+
+   This example demonstrates reading the registers on a remote modbus TCP device
+   In our case we set register 3 of type F32 (32 bit IEE Floating point number) with byte order BADC to the value of 2.342
+
+   Valid modbus register type examples include
+
+   	U16 Unsigned 16bit register
+   	S16 Signed 16bit register
+   	U32 Unsigned 32bit register
+   	S32 Signed 32bit register
+   	F32 32Bit IEE Floating Point register
+    F16 16Bit Half Float register
+    COIL coil register
+    DISC Discrete Input Register
+
+   Host byte order is set by the letters follwing the data type i.e. S16AB or S32ABCD or F32BACD
+   for COIL and DISC type reads and writes use the number of inputs (bits) after the command
+   e.g. DISC16 to read 16 discrete inputs. the getBit and setBit functions can then be used to query
+   individual bits (inputs, coils etc) in the mbResult
+   e.g. getBit(mbResult(),4)); to get bit 4 in the result.
+
+   using DISC1 or COIL1 will return a value of true or false depending on bit 0 of the DISCRETE or COIL input being read
+
+   After executing mbConnect, mbSetReg and mbGetReg return the status of the command, a value of 0
+   indicates a successful transaction, any other value indicates the error code.
+
+//mbSetReg(REGISTER, FORMAT, VALUE) → {Number}
+//Set a Modbus register on a remote device
+// Run after connection to the remote host
+
+
+
+ if(mbSetReg(3,'F32BADC',2.342) === 0){
+     print('Register set successfully');
+   } else {
+     print("Error setting modbus register");
+   }
+
+
+
+
+   This example demonstrates setting the registers on a remote modbus TCP device
+   In our case we set register 3 of type F32 (32 bit IEE Floating point number) with byte order BADC to the value of 2.342
+
+   Valid modbus register type examples include
+
+   	U16 Unsigned 16bit register
+   	S16 Signed 16bit register
+   	U32 Unsigned 32bit register
+   	S32 Signed 32bit register
+   	F32 32Bit IEE Floating Point register
+    F16 16Bit Half Float register
+    COIL coil register
+    DISC Discrete Input Register
+
+   Host byte order is set by the letters follwing the data type i.e. S16AB or S32ABCD or F32BACD
+   for COIL and DISC type reads and writes use the number of inputs (bits) after the command
+   e.g. DISC16 to read 16 discrete inputs. the getBit and setBit functions can then be used to query
+   individual bits (inputs, coils etc) in the mbResult
+   e.g. getBit(mbResult(),4)); to get bit 4 in the result.
+
+   using DISC1 or COIL1 will return a value of true or false depending on bit 0 of the DISCRETE or COIL input being read
+
+   After executing mbConnect, mbSetReg and mbGetReg return the status of the command, a value of 0
+   indicates a successful transaction, any other value indicates the error code.
+
+//pingprobes(Index) → {Object}
+//Get Ping Probe Status
+let pingProbe0 = pingprobes(0);// Get power metric 0, call it line
+ // pingProbe0 = {"latency":19,"lastReachable":0}
+
+//powermetrics(Index) → {Object}
+//Get Power Metric measurements
+let phaseA = powermetrics(0);// Get power metric 0, call it line
+// phaseA = {"thd":3.2,"pf":0.95,"freq":59.8,"voltage":225.34,"current":1.2,"realpower":230.4}
+
+//relays(Channel) → {Object}
+//Get Relay State, Current etc
+let relay1 = relays(1);
+
+ // relay1={"lvd":false,"hvd":false,"fuse":false,"state":false}
+run() → {Boolean}
+//Check script execution flag
+// binding the loop to the run() function allows the Flexs Q5 to stop the script during configuration updates,prevents unexpected behaviour
+ while(run()){
+
+   // do stuff
+ }
+
+//sdAppend(filename, text)
+//Append Write to a file on the SD Card
+// Log channel 3 value
+sdAppend('log.txt',JSON.stringify(datetime().epoch) +  ":    ch3: " + JSON.stringify(inputs(3)) + "\n");
+
+//setBit(VALUE, BIT, BITVALUE) → {Number}
+//Set a single bit in a interger number
+//setEnv(variable, value)
+//Set Q5 Environment Variable
+setEnv('sys.utc_offset',8); // Set UTC offset
+
+//setFeed(ID, Value)
+//Set Custom Feed Value
+setFeed(0,3.23); //  Set feed 0 to 3.23
+
+//tempsenors(Index) → {Object}
+//Get Temp Readings
+let temp0 = tempsensors(0); // Get Temp sensor index 0, can also request by UID , if no sensors are registered id 0 returns the first connected sensor and id 1 the second etc...
+ //temp0 =  {"temp":26.250000,"lastUpdated":4,"avg":26.250000,"inst":26.250000}
+
+//waitMS(mS)
+//Pause script execution
+// toggle relay 1 true and false for one second
+      setRelay(1,true);
+      waitMS(1000);
+      setRelay(1,false);
+      waitMS(1000);
+
+
+
