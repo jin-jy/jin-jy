@@ -1,0 +1,8 @@
+https://cafe.naver.com/renewableenergy/85454
+https://esphome.io/components/sensor/atm90e32.html
+# Example configuration entry
+- platform: adc
+  # ...
+  filters:
+    - offset: 2.0
+    - multiply: 1.2
