@@ -1,0 +1,13 @@
+https://cafe.naver.com/renewableenergy/85454
+https://esphome.io/components/sensor/atm90e32.html
+# Example configuration entry
+- platform: adc
+  # ...
+  filters:
+    - calibrate_polynomial:
+       degree: 2
+       datapoints:
+        # Map 0.0 (from sensor) to 0.0 (true value)
+        - 0.0 -> 0.0
+        - 10.0 -> 12.1
+        - 13.0 -> 14.0
