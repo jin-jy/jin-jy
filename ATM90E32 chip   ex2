@@ -1,0 +1,43 @@
+https://cafe.naver.com/renewableenergy/85454
+https://esphome.io/components/sensor/atm90e32.html
+# Example configuration entry for split single phase meter
+spi:
+  clk_pin: 18
+  miso_pin: 19
+  mosi_pin: 23
+
+sensor:
+  - platform: atm90e32
+    cs_pin: 5
+    phase_a:
+      voltage:
+        name: "EMON Line Voltage A"
+      current:
+        name: "EMON CT1 Current"
+      power:
+        name: "EMON Active Power CT1"
+      reactive_power:
+        name: "EMON Reactive Power CT1"
+      power_factor:
+        name: "EMON Power Factor CT1"
+      gain_voltage: 3920
+      gain_ct: 39473
+    phase_c:
+      current:
+        name: "EMON CT2 Current"
+      power:
+        name: "EMON Active Power CT2"
+      reactive_power:
+        name: "EMON Reactive Power CT2"
+      power_factor:
+        name: "EMON Power Factor CT2"
+      gain_voltage: 3920
+      gain_ct: 39473
+    frequency:
+      name: "EMON Line Frequency"
+    chip_temperature:
+      name: "EMON Chip Temperature"
+    line_frequency: 50Hz
+    current_phases: 2
+    gain_pga: 2X
+    update_interval: 60s
