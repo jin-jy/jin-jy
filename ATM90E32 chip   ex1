@@ -1,0 +1,15 @@
+https://cafe.naver.com/renewableenergy/85454
+https://esphome.io/components/sensor/atm90e32.html
+sensor:
+#IC1 Main
+  - platform: atm90e32
+    cs_pin: 5
+    phase_a:
+      forward_active_energy:
+        name: ${disp_name} ct1 FAWattHours
+        id: ct1FAWattHours
+        state_topic: ${disp_name}/ct1/forward_active_energy
+      reverse_active_energy:
+        name: ${disp_name} ct1 RAWattHours
+        id: ct1RAWattHours
+        state_topic: ${disp_name}/ct1/reverse_active_energy
