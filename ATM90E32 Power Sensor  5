@@ -1,0 +1,17 @@
+https://cafe.naver.com/renewableenergy/85454
+https://esphome.io/components/sensor/atm90e32.html
+
+# Example sensor configuration
+name: Livingroom Temperature
+
+# Optional variables:
+unit_of_measurement: "°C"
+icon: "mdi:water-percent"
+device_class: "temperature"
+state_class: "measurement"
+accuracy_decimals: 1
+expire_after: 30s
+filters:
+  - sliding_window_moving_average:
+      window_size: 15
+      send_every: 15
