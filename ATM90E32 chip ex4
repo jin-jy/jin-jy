@@ -1,0 +1,146 @@
+https://cafe.naver.com/renewableenergy/85454
+https://esphome.io/components/sensor/atm90e32.html
+# Example CircuitSetup 6-channel without jumpers jp9-jp11 joined or < meter v1.4
+# power is calculated in a template
+
+substitutions:
+  disp_name: 6C
+  update_time: 10s
+  current_cal: '27961'
+
+spi:
+  clk_pin: 18
+  miso_pin: 19
+  mosi_pin: 23
+sensor:
+  - platform: atm90e32
+    cs_pin: 5
+    phase_a:
+      voltage:
+        name: ${disp_name} Volts A
+        id: ic1Volts
+        accuracy_decimals: 1
+      current:
+        name: ${disp_name} CT1 Amps
+        id: ct1Amps
+      gain_voltage: 7305
+      gain_ct: ${current_cal}
+    phase_b:
+      current:
+        name: ${disp_name} CT2 Amps
+        id: ct2Amps
+      gain_ct: ${current_cal}
+    phase_c:
+      current:
+        name: ${disp_name} CT3 Amps
+        id: ct3Amps
+      gain_ct: ${current_cal}
+    frequency:
+      name: ${disp_name} Freq A
+    line_frequency: 60Hz
+    current_phases: 3
+    gain_pga: 1X
+    update_interval: ${update_time}
+  - platform: atm90e32
+    cs_pin: 4
+    phase_a:
+      voltage:
+        name: ${disp_name} Volts B
+        id: ic2Volts
+        accuracy_decimals: 1
+      current:
+        name: ${disp_name} CT4 Amps
+        id: ct4Amps
+      gain_voltage: 7305
+      gain_ct: ${current_cal}
+    phase_b:
+      current:
+        name: ${disp_name} CT5 Amps
+        id: ct5Amps
+      gain_ct: ${current_cal}
+    phase_c:
+      current:
+        name: ${disp_name} CT6 Amps
+        id: ct6Amps
+      gain_ct: ${current_cal}
+    frequency:
+      name: ${disp_name} Freq B
+    line_frequency: 60Hz
+    current_phases: 3
+    gain_pga: 1X
+    update_interval: ${update_time}
+
+#Watts per channel
+  - platform: template
+    name: ${disp_name} CT1 Watts
+    id: ct1Watts
+    lambda: return id(ct1Amps).state * id(ic1Volts).state;
+    accuracy_decimals: 0
+    unit_of_measurement: W
+    icon: "mdi:flash-circle"
+    update_interval: ${update_time}
+  - platform: template
+    name: ${disp_name} CT2 Watts
+    id: ct2Watts
+    lambda: return id(ct2Amps).state * id(ic1Volts).state;
+    accuracy_decimals: 0
+    unit_of_measurement: W
+    icon: "mdi:flash-circle"
+    update_interval: ${update_time}
+  - platform: template
+    name: ${disp_name} CT3 Watts
+    id: ct3Watts
+    lambda: return id(ct3Amps).state * id(ic1Volts).state;
+    accuracy_decimals: 0
+    unit_of_measurement: W
+    icon: "mdi:flash-circle"
+    update_interval: ${update_time}
+  - platform: template
+    name: ${disp_name} CT4 Watts
+    id: ct4Watts
+    lambda: return id(ct4Amps).state * id(ic2Volts).state;
+    accuracy_decimals: 0
+    unit_of_measurement: W
+    icon: "mdi:flash-circle"
+    update_interval: ${update_time}
+  - platform: template
+    name: ${disp_name} CT5 Watts
+    id: ct5Watts
+    lambda: return id(ct5Amps).state * id(ic2Volts).state;
+    accuracy_decimals: 0
+    unit_of_measurement: W
+    icon: "mdi:flash-circle"
+    update_interval: ${update_time}
+  - platform: template
+    name: ${disp_name} CT6 Watts
+    id: ct6Watts
+    lambda: return id(ct6Amps).state * id(ic2Volts).state;
+    accuracy_decimals: 0
+    unit_of_measurement: W
+    icon: "mdi:flash-circle"
+    update_interval: ${update_time}
+#Total Amps
+  - platform: template
+    name: ${disp_name} Total Amps
+    id: totalAmps
+    lambda: return id(ct1Amps).state + id(ct2Amps).state + id(ct3Amps).state + id(ct4Amps).state + id(ct5Amps).state + id(ct6Amps).state ;
+    accuracy_decimals: 2
+    unit_of_measurement: A
+    icon: "mdi:flash"
+    update_interval: ${update_time}
+#Total Watts
+  - platform: template
+    name: ${disp_name} Total Watts
+    id: totalWatts
+    lambda: return id(totalAmps).state * id(ic1Volts).state;
+    accuracy_decimals: 1
+    unit_of_measurement: W
+    icon: "mdi:flash-circle"
+    update_interval: ${update_time}
+#kWh
+  - platform: total_daily_energy
+    name: ${disp_name} Total kWh
+    power_id: totalWatts
+    filters:
+      - multiply: 0.001
+    unit_of_measurement: kWh
