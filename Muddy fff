@@ -1,0 +1,59 @@
+Option Explicit
+
+ 
+
+Dim Re As Double
+
+Dim epsd As Double
+
+ 
+
+Function Moody_fff(Re As Double, epsd As Double) As Double
+
+ 
+
+Application.Goto Reference:="Moody_fff"
+
+ 
+
+Dim y As Double
+
+' This function computes the Fanning friction factor used in
+
+' pipe flow calculations rather than using a Moody chart lookup
+
+' Joseph Hartvigsen 20 Nov 2003
+
+'
+
+If Re < 2100 Then
+
+Moody_fff = 16# / Re
+
+Else
+
+y = -Log10(epsd / 3.7 - 4.52 / Re * Log10(7# / Re + epsd / 7#))
+
+y = -Log10(epsd / 3.7 + 5.02 * y / Re)
+
+y = -Log10(epsd / 3.7 + 5.02 * y / Re)
+
+y = -Log10(epsd / 3.7 + 5.02 * y / Re)
+
+Moody_fff = 1# / (16# * y * y)
+
+End If
+
+ 
+
+End Function
+
+ 
+
+Static Function Log10(x)
+
+Log10 = Log(x) / Log(10#)
+
+End Function
+
+ 
